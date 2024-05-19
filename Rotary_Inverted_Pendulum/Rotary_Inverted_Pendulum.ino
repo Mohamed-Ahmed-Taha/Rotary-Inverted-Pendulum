@@ -69,7 +69,23 @@ void xServoTask(void *pvParameters)
   }
 }
 
+void calculatePID()
+{
+  //Determining the elapsed time
+  currentTime = micros(); //current time
+  deltaTime = (currentTime - previousTime) / 1000000.0; //time difference in seconds
+  previousTime = currentTime; //save the current time for the next iteration to get the time difference
+  //---
+  errorValue = motorPosition - targetPosition; //Current position - target position (or setpoint)
 
+  edot = (errorValue - previousError) / deltaTime; //edot = de/dt - derivative term
+
+  errorIntegral = errorIntegral + (errorValue * deltaTime); //integral term - Newton-Leibniz, notice, this is a running sum!
+
+  controlSignal = (proportional * errorValue) + (derivative * edot) + (integral * errorIntegral); //final sum, proportional term also calculated here
+
+  previousError = errorValue; //save the error for the next iteration to get the difference (for edot)
+}
 
 float getAngle() {
   int regValue = 0;
